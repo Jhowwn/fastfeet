@@ -57,6 +57,7 @@ model Delivery {
 model Recipient {
   id           String @id @default(uuid())
   name         String
+  email        String @unique
   localization String
 
   delivery             Delivery[]

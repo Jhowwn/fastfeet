@@ -7,7 +7,6 @@ import { PrismaService } from "../prisma.service";
 @Injectable()
 export class PrismaUsersRepository implements UserRepository {
   constructor(private prisma: PrismaService) {}
-
   async findByCPF(cpf: string): Promise<User | null> {
     const user = await this.prisma.user.findUnique({
       where: {
@@ -28,5 +27,18 @@ export class PrismaUsersRepository implements UserRepository {
     await this.prisma.user.create({
       data,
     });
+  }
+
+  async save(user: User): Promise<void> {
+    const data = PrismaUserMapper.toPrisma(user);
+
+    await Promise.all([
+      this.prisma.user.update({
+        where: {
+          id: user.id.toString(),
+        },
+        data,
+      }),
+    ]);
   }
 }

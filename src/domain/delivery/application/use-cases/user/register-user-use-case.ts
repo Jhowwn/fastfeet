@@ -1,9 +1,9 @@
 import { Either, left, right } from "@/core/either";
 import { Injectable } from "@nestjs/common";
-import { User } from "../../enterprise/entities/user";
-import { HashGenerator } from "../cryptography/hash-generator";
-import { UserRepository } from "../repositories/user-repository";
-import { UserAlreadyRegisteredError } from "./error/User-Already-Registered-Error";
+import { User } from "../../../enterprise/entities/user";
+import { HashGenerator } from "../../cryptography/hash-generator";
+import { UserAlreadyRegisteredError } from "../../errors/User-Already-Registered-Error";
+import { UserRepository } from "../../repositories/user-repository";
 
 type UserRole = "ADMIN" | "DELIVERER";
 

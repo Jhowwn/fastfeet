@@ -1,7 +1,7 @@
 import { Public } from "@/infra/auth/public";
 
-import { UserAlreadyRegisteredError } from "@/domain/delivery/application/use-cases/error/User-Already-Registered-Error";
-import { RegisterUserUseCase } from "@/domain/delivery/application/use-cases/register-user-use-case";
+import { UserAlreadyRegisteredError } from "@/domain/delivery/application/errors/User-Already-Registered-Error";
+import { RegisterUserUseCase } from "@/domain/delivery/application/use-cases/user/register-user-use-case";
 import {
   BadRequestException,
   Body,
@@ -12,7 +12,7 @@ import {
   UsePipes,
 } from "@nestjs/common";
 import { z } from "zod";
-import { ZodValidationPipe } from "../pipes/zod-validation-pipe";
+import { ZodValidationPipe } from "../../pipes/zod-validation-pipe";
 
 const createAccountBodySchema = z.object({
   name: z.string(),
