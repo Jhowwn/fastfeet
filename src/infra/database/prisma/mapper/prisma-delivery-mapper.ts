@@ -10,9 +10,9 @@ export class PrismaDeliveryMapper {
         description: raw.description,
         latitude: raw.latitude.toNumber(),
         longitude: raw.longitude.toNumber(),
-        status: "Aguardando",
-        courierId: new UniqueEntityID(),
-        recipientId: new UniqueEntityID(),
+        status: raw.status,
+        courierId: new UniqueEntityID(raw.courierId),
+        recipientId: new UniqueEntityID(raw.recipientId),
       },
       new UniqueEntityID(raw.id),
     );
@@ -23,11 +23,13 @@ export class PrismaDeliveryMapper {
       id: delivery.id.toString(),
       title: delivery.title,
       description: delivery.description,
-      latitude: delivery.latitude,
-      longitude: delivery.longitude,
-      status: "Aguardando",
       courierId: delivery.courierId.toString(),
       recipientId: delivery.recipientId.toString(),
+      latitude: delivery.latitude,
+      longitude: delivery.longitude,
+      status: delivery.status,
+      createdAt: delivery.createdAt,
+      updatedAt: delivery.updatedAt,
     };
   }
 }

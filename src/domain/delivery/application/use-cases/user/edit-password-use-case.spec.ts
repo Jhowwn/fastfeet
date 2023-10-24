@@ -24,7 +24,7 @@ describe("Edit User", () => {
     await inMemoryUsersRepository.create(user);
 
     const result = await sut.execute({
-      cpf: "123456789",
+      userId: user.id.toString(),
       password: password,
     });
 

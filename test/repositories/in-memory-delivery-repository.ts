@@ -1,20 +1,16 @@
+import { DomainEvents } from "@/core/events/domain-events";
 import { PaginationParams } from "@/core/repositories/pagination-params";
 import { DeliveryRepository } from "@/domain/delivery/application/repositories/delivery-repository";
 import { Delivery } from "@/domain/delivery/enterprise/entities/delivery";
+import { InMemoryAttachmentsRepository } from "./in-memory-attachments-repository";
+import { InMemoryDeliveryAttachmentsRepository } from "./in-memory-delivery-attachments-repository";
 
 export class InMemoryDeliverysRepository implements DeliveryRepository {
   public items: Delivery[] = [];
-  async create(delivery: Delivery) {
-    this.items.push(delivery);
-  }
-
-  async save(delivery: Delivery) {
-    const itemIndex = this.items.findIndex(
-      (item) => item.id.toString() === delivery.id.toString(),
-    );
-
-    this.items[itemIndex] = delivery;
-  }
+  constructor(
+    private deliveryAttachmentsRepository: InMemoryDeliveryAttachmentsRepository,
+    private attachmentsRepository: InMemoryAttachmentsRepository,
+  ) {}
 
   async findById(deliveryId: string) {
     const delivery = this.items.find(
@@ -44,11 +40,40 @@ export class InMemoryDeliverysRepository implements DeliveryRepository {
     return deliveries;
   }
 
+  async create(delivery: Delivery) {
+    this.items.push(delivery);
+    DomainEvents.dispatchEventsForAggregate(delivery.id);
+  }
+
+  async save(delivery: Delivery) {
+    const itemIndex = this.items.findIndex(
+      (item) => item.id.toString() === delivery.id.toString(),
+    );
+
+    if (delivery.status === "Entregue") {
+      await this.deliveryAttachmentsRepository.createMany(
+        delivery.attachments.getNewItems(),
+      );
+
+      await this.deliveryAttachmentsRepository.deleteMany(
+        delivery.attachments.getRemovedItems(),
+      );
+    }
+
+    this.items[itemIndex] = delivery;
+
+    DomainEvents.dispatchEventsForAggregate(delivery.id);
+  }
+
   async delete(delivery: Delivery) {
     const itemIndex = this.items.findIndex(
       (item) => item.id.toString() === delivery.id.toString(),
     );
 
     this.items.splice(itemIndex, 1);
+
+    this.deliveryAttachmentsRepository.deleteManyByDeliveryId(
+      delivery.id.toString(),
+    );
   }
 }

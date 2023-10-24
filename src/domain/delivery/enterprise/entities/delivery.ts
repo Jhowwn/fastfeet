@@ -1,7 +1,8 @@
-import { Entity } from "@/core/entities/entity";
+import { AggregateRoot } from "@/core/entities/aggregate-root";
 import { UniqueEntityID } from "@/core/entities/unique-entity-id";
 import { Optional } from "@/core/types/optional";
 import dayjs from "dayjs";
+import { DeliveryAttachmentList } from "./delivery-attachments-list";
 
 type DeliveryStatus = "Aguardando" | "Retirada" | "Entregue" | "Devolvida";
 
@@ -15,9 +16,10 @@ export interface DeliveryProps {
   status: DeliveryStatus;
   createdAt: Date;
   updatedAt?: Date | null;
+  attachments: DeliveryAttachmentList;
 }
 
-export class Delivery extends Entity<DeliveryProps> {
+export class Delivery extends AggregateRoot<DeliveryProps> {
   get title() {
     return this.props.title;
   }
@@ -61,6 +63,15 @@ export class Delivery extends Entity<DeliveryProps> {
     this.touch();
   }
 
+  get attachments() {
+    return this.props.attachments;
+  }
+
+  set attachments(attachments: DeliveryAttachmentList) {
+    this.props.attachments = attachments;
+    this.touch();
+  }
+
   get createdAt() {
     return this.props.createdAt;
   }
@@ -78,12 +89,13 @@ export class Delivery extends Entity<DeliveryProps> {
   }
 
   static create(
-    props: Optional<DeliveryProps, "createdAt">,
+    props: Optional<DeliveryProps, "createdAt" | "attachments">,
     id?: UniqueEntityID,
   ) {
     const delivery = new Delivery(
       {
         ...props,
+        attachments: props.attachments ?? new DeliveryAttachmentList(),
         createdAt: props.createdAt ?? new Date(),
         status: props.status,
       },

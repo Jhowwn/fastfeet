@@ -6,12 +6,12 @@ import { UserAlreadyRegisteredError } from "../../errors/User-Already-Registered
 import { WrongCredentialsError } from "../../errors/wrong-credentials-error";
 import { UserRepository } from "../../repositories/user-repository";
 
-interface EditUserUseCaseRequest {
-  cpf: string;
+interface EditPasswordUseCaseRequest {
+  userId: string;
   password: string;
 }
 
-type EditUserUseCaseResponse = Either<
+type EditPasswordUseCaseResponse = Either<
   UserAlreadyRegisteredError,
   {
     user: User;
@@ -26,10 +26,10 @@ export class EditPasswordUserUseCase {
   ) {}
 
   async execute({
-    cpf,
+    userId,
     password,
-  }: EditUserUseCaseRequest): Promise<EditUserUseCaseResponse> {
-    const user = await this.userRepository.findByCPF(cpf);
+  }: EditPasswordUseCaseRequest): Promise<EditPasswordUseCaseResponse> {
+    const user = await this.userRepository.findById(userId);
 
     if (!user) {
       return left(new WrongCredentialsError());
@@ -43,7 +43,7 @@ export class EditPasswordUserUseCase {
 
     user.password = hashedPassword;
 
-    await this.userRepository.create(user);
+    await this.userRepository.save(user);
 
     return right({
       user,

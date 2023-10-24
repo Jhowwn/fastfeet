@@ -4,12 +4,24 @@ import { makeDelivery } from "test/factories/make-delivery";
 import { InMemoryDeliverysRepository } from "test/repositories/in-memory-delivery-repository";
 import { DeleteDeliveryUseCase } from "./delete-delivery-use-case";
 
+import { makeDeliveryAttachment } from "test/factories/make-delivery-attachment";
+import { InMemoryAttachmentsRepository } from "test/repositories/in-memory-attachments-repository";
+import { InMemoryDeliveryAttachmentsRepository } from "test/repositories/in-memory-delivery-attachments-repository";
+
 let inMemoryDeliverysRepository: InMemoryDeliverysRepository;
+let inMemoryAttachmentsRepository: InMemoryAttachmentsRepository;
+let inMemoryDeliveryAttachmentsRepository: InMemoryDeliveryAttachmentsRepository;
 let sut: DeleteDeliveryUseCase;
 
 describe("Delete Delivery", () => {
   beforeEach(() => {
-    inMemoryDeliverysRepository = new InMemoryDeliverysRepository();
+    inMemoryAttachmentsRepository = new InMemoryAttachmentsRepository();
+    inMemoryDeliveryAttachmentsRepository =
+      new InMemoryDeliveryAttachmentsRepository();
+    inMemoryDeliverysRepository = new InMemoryDeliverysRepository(
+      inMemoryDeliveryAttachmentsRepository,
+      inMemoryAttachmentsRepository,
+    );
 
     sut = new DeleteDeliveryUseCase(inMemoryDeliverysRepository);
   });
@@ -18,6 +30,13 @@ describe("Delete Delivery", () => {
     const delivery = makeDelivery({}, new UniqueEntityID("delivery-1"));
 
     inMemoryDeliverysRepository.items.push(delivery);
+
+    inMemoryDeliveryAttachmentsRepository.items.push(
+      makeDeliveryAttachment({
+        deliveryId: delivery.id,
+        attachmentId: new UniqueEntityID("1"),
+      }),
+    );
 
     await sut.execute({
       deliveryId: "delivery-1",

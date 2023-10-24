@@ -29,7 +29,8 @@ model User {
   password String
   role     UserRole @default(DELIVERER)
 
-  delivery Delivery[]
+  delivery     Delivery[]
+  Notification Notification[]
 
   @@map("users")
 }
@@ -39,7 +40,7 @@ model Delivery {
   title       String
   description String
   recipientId String         @map("recipient_id")
-  courierId   String         @map("user_id")
+  courierId   String         @map("courier_id")
   latitude    Decimal
   longitude   Decimal
   status      DeliveryStatus
@@ -90,4 +91,16 @@ model DeliveryStatusUpdate {
   delivery  Delivery  @relation(fields: [deliveryId], references: [id])
 
   @@map("delivery_status")
+}
+
+model Notification {
+  id          String    @id @default(uuid())
+  recipientId String    @map("recipient_id")
+  title       String
+  content     String
+  readAt      DateTime? @map("read_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  recipient   User      @relation(fields: [recipientId], references: [id])
+
+  @@map("notifications")
 }
